@@ -1,11 +1,11 @@
-resource "aws_iam_role" "lambda" {
+resource "aws_iam_role" "main" {
   name               = var.aws_iam_role_name
   assume_role_policy = data.aws_iam_policy_document.lambda_allow_sts_assume_role.json
   managed_policy_arns = [
     aws_iam_policy.lambda_function_allow_logs_actions.arn,
   ]
 
-  tags = {} # TODO
+  tags = local.tags
 }
 
 resource "aws_iam_policy" "lambda_function_allow_logs_actions" {
@@ -26,6 +26,6 @@ resource "aws_iam_policy" "lambda_function_allow_logs_actions" {
     ]
   })
 
-  tags = {} # TODO
+  tags = local.tags
 }
 

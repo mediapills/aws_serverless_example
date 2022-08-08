@@ -1,7 +1,7 @@
-resource "aws_lambda_function" "api" {
+resource "aws_lambda_function" "main" {
   function_name = var.aws_lambda_function_name
 
-  role = aws_iam_role.lambda.arn
+  role = aws_iam_role.main.arn
 
   # If the file is not in the current working directory you will need to include a
   # path.module in the filename.
@@ -11,5 +11,7 @@ resource "aws_lambda_function" "api" {
 
   runtime = "python3.9"
 
-  depends_on = [aws_iam_role.lambda]
+  depends_on = [aws_iam_role.main]
+
+  tags = local.tags
 }
