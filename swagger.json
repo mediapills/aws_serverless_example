@@ -1,0 +1,40 @@
+{
+   "swagger":"2.0",
+   "info":{
+      "title":"API for Partner service",
+      "version":"1.0"
+   },
+   "x-amazon-apigateway-api-key-source" : "HEADER",
+   "paths":{
+      "/{proxy+}":{
+         "x-amazon-apigateway-any-method":{
+            "parameters":[
+               {
+                  "name":"proxy",
+                  "in":"path",
+                  "required":true,
+                  "schema":{
+                     "type":"string"
+                  }
+               }
+            ],
+            "responses":{
+
+            },
+            "deprecated":false,
+            "x-amazon-apigateway-integration":{
+               "type":"aws_proxy",
+               "uri":"${lambda_uri}",
+               "httpMethod":"POST",
+               "responses":{
+                  "default":{
+                     "statusCode":"200"
+                  }
+               },
+               "passthroughBehavior":"when_no_match",
+               "contentHandling":"CONVERT_TO_TEXT"
+            }
+         }
+      }
+   }
+}
