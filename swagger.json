@@ -1,10 +1,9 @@
 {
    "swagger":"2.0",
    "info":{
-      "title":"API for Partner service",
+      "title":"API for Example AWS Lambda",
       "version":"1.0"
    },
-   "x-amazon-apigateway-api-key-source" : "HEADER",
    "paths":{
       "/{proxy+}":{
          "x-amazon-apigateway-any-method":{
@@ -33,7 +32,8 @@
                },
                "passthroughBehavior":"when_no_match",
                "contentHandling":"CONVERT_TO_TEXT"
-            }
+            },
+            "x-amazon-apigateway-api-key-source" : "HEADER"
          }
       }
    }

@@ -4,7 +4,7 @@ variable "aws_iam_policy_name_prefix" {
   default     = "ServerlessExamplePolicy"
 }
 
-variable "aws_iam_role_name" {
+variable "aws_iam_role_name_prefix" {
   type        = string
   description = "The aws lambda role name."
   default     = "ServerlessExampleRole"

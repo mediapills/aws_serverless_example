@@ -1,9 +1,10 @@
 resource "aws_api_gateway_rest_api" "main" {
   name = var.aws_api_gateway_rest_api_name
+  api_key_source = "HEADER"
 
-  body = templatefile("${path.module}/swagger.json", {
-    lambda_uri = local.lambda_function_uri,
-  })
+#  body = templatefile("${path.module}/swagger.json", {
+#    lambda_uri = local.lambda_function_uri,
+#  })
 
   endpoint_configuration {
     types = ["REGIONAL"] // could be PRIVATE, EDGE or REGIONAL
@@ -20,6 +21,8 @@ resource "aws_api_gateway_deployment" "main" {
   lifecycle {
     create_before_destroy = true
   }
+
+  depends_on = [aws_api_gateway_method.main]
 }
 
 resource "aws_api_gateway_stage" "main" {
@@ -49,4 +52,42 @@ resource "aws_api_gateway_usage_plan_key" "main" {
   key_id        = aws_api_gateway_api_key.main.id
   key_type      = "API_KEY"
   usage_plan_id = aws_api_gateway_usage_plan.main.id
+}
+
+# AWS API Gateway integration
+
+resource "aws_api_gateway_resource" "main" {
+  parent_id   = aws_api_gateway_rest_api.main.root_resource_id
+  path_part   = "{proxy+}"
+  rest_api_id = aws_api_gateway_rest_api.main.id
+}
+
+resource "aws_api_gateway_method" "main" {
+  rest_api_id      = aws_api_gateway_rest_api.main.id
+  resource_id      = aws_api_gateway_resource.main.id
+  http_method      = "ANY"
+  authorization    = "NONE"
+  api_key_required = true
+}
+
+resource "aws_api_gateway_method_response" "main" {
+  rest_api_id = aws_api_gateway_rest_api.main.id
+  resource_id = aws_api_gateway_resource.main.id
+  http_method = aws_api_gateway_method.main.http_method
+  status_code = "200"
+  response_parameters = {
+      "method.response.header.Access-Control-Allow-Headers" = true,
+      "method.response.header.Access-Control-Allow-Methods" = true,
+      "method.response.header.Access-Control-Allow-Origin" = true
+  }
+}
+
+resource "aws_api_gateway_integration" "main" {
+  rest_api_id             = aws_api_gateway_rest_api.main.id
+  resource_id             = aws_api_gateway_resource.main.id
+  http_method             = aws_api_gateway_method.main.http_method
+  integration_http_method = "POST"
+  type                    = "AWS"
+  uri                     = "arn:aws:apigateway:${data.aws_region.current.name}:lambda:path/2015-03-31/functions/${aws_lambda_function.main.arn}/invocations"
+  credentials             = aws_iam_role.apigateway_role.arn
 }
